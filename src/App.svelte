@@ -1,7 +1,7 @@
 <script>
   import {onMount} from 'svelte';
-
-  let orientation = {
+  $: permission = ''; 
+  $: orientation = {
     alpha: 0,
     beta: 0,
     gamma: 0,
@@ -10,6 +10,7 @@
     if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
       DeviceOrientationEvent?.requestPermission()
         .then((response) => {
+          permission = response;
           if (response == 'granted') {
             window.addEventListener('deviceorientation', (e) => {
               orientation = {
@@ -22,6 +23,7 @@
         })
         .catch(console.error);
     } else {
+      permission = 'no requestPermission function';
       Promise.resolve(
         window.addEventListener('deviceorientation', (e) => {
           orientation = {
@@ -37,6 +39,7 @@
 
 <main>
   <h1>Device Orientation</h1>
+  <h3>{permission}</h3>
   {JSON.stringify(orientation)}
 </main>
 
