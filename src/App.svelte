@@ -50,7 +50,7 @@
     } else {
       permission = 'no requestPermission function';
       Promise.resolve(
-        createListeners();
+        createListeners()
       );
     }
   });
