@@ -16,6 +16,8 @@
     heading: 0,
     speed: 0,
   };
+  let canvas, ctx;
+
   let x = 0,
     y = 0,
     dragging = false;
@@ -37,13 +39,14 @@
     const dy = e.clientY - y;
     x += dx;
     y += dy;
-    orientation.alpha += dx;
+    orientation.alpha += 0.1 * dx;
     if (shift) {
-      orientation.gamma += dy;
+      orientation.gamma += 0.1 * dy;
     } else {
-      orientation.beta += dy;
+      orientation.beta += 0.1 * dy;
     }
     orientation = sanitize(orientation);
+    requestAnimationFrame(updateCanvas);
   }
   function sanitize({alpha, beta, gamma}) {
     alpha = (alpha + 360) % 360;
@@ -59,8 +62,13 @@
         beta: e.beta,
         gamma: e.gamma,
       };
+      requestAnimationFrame(updateCanvas);
     });
-
+    window.addEventListener('orientationchange', (e) => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      requestAnimationFrame(updateCanvas);
+    });
     navigator?.geolocation?.watchPosition((position) => {
       location = {
         latitude: position.coords.latitude,
@@ -88,6 +96,9 @@
   }
 
   onMount(() => {
+    canvas.width = window.innerWidth;
+    canvas.height=window.innerHeight;
+    ctx = canvas.getContext('2d');
     status = 'mounted';
     if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
       permission = 'unset';
@@ -96,6 +107,26 @@
       createListeners();
     }
   });
+
+  function updateCanvas() {
+    if (canvas === undefined || ctx === undefined) {return;}
+    ctx.fillStyle = '#8ad1db';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#558688'
+    const {alpha, beta, gamma} = orientation;
+    const horizon_angle = -Math.PI / 16 + gamma;
+
+    const yHorizon = (canvas?.height ?? 0) * (0.5 + Math.sin(horizon_angle));
+    const yHorizonDelta = Math.sin(beta) * (canvas?.width ?? 0) * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    ctx.lineTo(0, yHorizon - yHorizonDelta);
+    ctx.lineTo(canvas.width, yHorizon + yHorizonDelta);
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+  }
+
 </script>
 
 <main
@@ -104,13 +135,7 @@
   on:mousemove={handleDrag}
   on:mouseup={handleDragEnd}
 >
-  <h1>Device Orientation</h1>
-  <h3>{`Permission: ${permission}`}</h3>
-  {JSON.stringify(orientation, null, 2)}
-  <h3>Geolocation</h3>
-  {JSON.stringify(location, null, 2)}
-  <h3>debug</h3>
-  {status}
+  <canvas bind:this={canvas}></canvas>
 </main>
 
 <style>
