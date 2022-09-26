@@ -15,7 +15,9 @@
     heading: 0,
     speed: 0,
   };
-  let x = 0, y = 0, dragging = false;
+  let x = 0,
+    y = 0,
+    dragging = false;
   let shift = false;
   function handleDragStart(e) {
     x = e.clientX;
@@ -42,11 +44,11 @@
     }
     orientation = sanitize(orientation);
   }
-  function sanitize({alpha,beta, gamma}) {
+  function sanitize({alpha, beta, gamma}) {
     alpha = (alpha + 360) % 360;
     beta = Math.max(-90, Math.min(90, beta));
     gamma = Math.max(-90, Math.min(90, gamma));
-    return {alpha,beta, gamma};
+    return {alpha, beta, gamma};
   }
   function createListeners() {
     window.addEventListener('deviceorientation', (e) => {
@@ -70,19 +72,18 @@
     });
   }
   async function handleFirstGesture(e) {
-    if (typeof DeviceOrientationEvent?.requestPermission !== 'function' || permission !== 'unset') return;
+    if (typeof DeviceOrientationEvent?.requestPermission !== 'function' || permission !== 'unset')
+      return;
     DeviceOrientationEvent?.requestPermission()
-        .then((response) => {
-          permission = response;
-          if (response == 'granted') {
-            createListeners();
-          }
-        })
-        .catch(error => {
-          permission = e.message;
-        });
+      .then((response) => {
+        permission = response;
+        createListeners();
+      })
+      .catch((error) => {
+        permission = e;
+      });
   }
-  
+
   onMount(() => {
     if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
       permission = 'unset';
@@ -97,13 +98,15 @@
   on:touchstart={handleFirstGesture}
   on:mousedown={handleDragStart}
   on:mousemove={handleDrag}
-  on:mouseup={handleDragEnd}>
-  <h1 >Device Orientation</h1>
+  on:mouseup={handleDragEnd}
+>
+  <h1>Device Orientation</h1>
   <h3>{`Permission: ${permission}`}</h3>
   {JSON.stringify(orientation, null, 2)}
   <h3>Geolocation</h3>
   {JSON.stringify(location, null, 2)}
 </main>
+
 <style>
   main {
     display: flex;
