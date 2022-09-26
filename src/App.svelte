@@ -69,11 +69,9 @@
       };
     });
   }
-
-  onMount(async () => {
-    permission = 'requested';
-    if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
-      DeviceOrientationEvent?.requestPermission()
+  async function handleFirstGesture(e) {
+    if (typeof DeviceOrientationEvent?.requestPermission !== 'function' || permission !== 'unset') return;
+    DeviceOrientationEvent?.requestPermission()
         .then((response) => {
           permission = response;
           if (response == 'granted') {
@@ -81,14 +79,20 @@
           }
         })
         .catch(console.error);
+  }
+  
+  onMount(() => {
+    if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
+      permission = 'unset';
     } else {
       permission = 'no requestPermission function';
-      Promise.resolve(createListeners());
+      createListeners();
     }
   });
 </script>
 
-<main  
+<main
+  on:touchstart={handleFirstGesture}
   on:mousedown={handleDragStart}
   on:mousemove={handleDrag}
   on:mouseup={handleDragEnd}>
@@ -98,3 +102,14 @@
   <h3>Geolocation</h3>
   {JSON.stringify(location, null, 2)}
 </main>
+<style>
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    background: #eee;
+  }
+</style>
