@@ -78,7 +78,9 @@
             createListeners();
           }
         })
-        .catch(console.error);
+        .catch(error => {
+          permission = e.message;
+        });
   }
   
   onMount(() => {
