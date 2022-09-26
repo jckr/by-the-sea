@@ -1,6 +1,6 @@
 <script>
   import {onMount} from 'svelte';
-  $: permission = '';
+  $: permission = 'unset';
   $: orientation = {
     alpha: 0,
     beta: 0,
@@ -71,6 +71,7 @@
   }
 
   onMount(async () => {
+    permission = 'requested';
     if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
       DeviceOrientationEvent?.requestPermission()
         .then((response) => {
