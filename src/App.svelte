@@ -1,6 +1,7 @@
 <script>
   import {onMount} from 'svelte';
   $: permission = 'unset';
+  $: status = 'default';
   $: orientation = {
     alpha: 0,
     beta: 0,
@@ -51,6 +52,7 @@
     return {alpha, beta, gamma};
   }
   function createListeners() {
+    status = 'listening';
     window.addEventListener('deviceorientation', (e) => {
       orientation = {
         alpha: e.alpha,
@@ -74,17 +76,19 @@
   async function handleFirstGesture(e) {
     if (typeof DeviceOrientationEvent?.requestPermission !== 'function' || permission !== 'unset')
       return;
+    status = 'permission requested';
     DeviceOrientationEvent?.requestPermission()
       .then((response) => {
         permission = response;
         createListeners();
       })
       .catch((error) => {
-        permission = e;
+        permission = e.message;
       });
   }
 
   onMount(() => {
+    status = 'mounted';
     if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
       permission = 'unset';
     } else {
@@ -95,7 +99,7 @@
 </script>
 
 <main
-  on:touchstart={handleFirstGesture}
+  on:click={handleFirstGesture}
   on:mousedown={handleDragStart}
   on:mousemove={handleDrag}
   on:mouseup={handleDragEnd}
@@ -105,6 +109,8 @@
   {JSON.stringify(orientation, null, 2)}
   <h3>Geolocation</h3>
   {JSON.stringify(location, null, 2)}
+  <h3>debug</h3>
+  {status}
 </main>
 
 <style>
