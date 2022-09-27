@@ -119,7 +119,10 @@
   on:mousemove={handleDrag}
   on:mouseup={handleDragEnd}
 >
-  <input on:change={handlePhoto} type="file" accept="image/*" id="file-input" />
+  <section class="camera">
+    <label for="camera-input" class="camera-label">Take photo</label>
+    <input id="camera-input" on:change={handlePhoto} type="file" accept="image/*" />
+  </section>
   <h1>Device Orientation</h1>
   <p>Permission: {permission}</p>
   <p>Status: {status}</p>
@@ -145,5 +148,8 @@
     height: 100vh;
     width: 100vw;
     background: #eee;
+  }
+  .camera #camera-input {
+    display: none;
   }
 </style>
