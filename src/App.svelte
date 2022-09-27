@@ -3,6 +3,7 @@
   $: permission = 'unset';
   $: status = 'default';
   $: orientation = {
+    absolute: null,
     alpha: 0,
     beta: 0,
     gamma: 0,
@@ -16,7 +17,6 @@
     heading: 0,
     speed: 0,
   };
-  let canvas, ctx;
 
   let x = 0,
     y = 0,
@@ -46,7 +46,6 @@
       orientation.beta += 0.1 * dy;
     }
     orientation = sanitize(orientation);
-    requestAnimationFrame(updateCanvas);
   }
   function sanitize({alpha, beta, gamma}) {
     alpha = (alpha + 360) % 360;
@@ -58,17 +57,13 @@
     status = 'listening';
     window.addEventListener('deviceorientation', (e) => {
       orientation = {
+        absolute: e.absolute,
         alpha: e.alpha,
         beta: e.beta,
         gamma: e.gamma,
       };
-      requestAnimationFrame(updateCanvas);
     });
-    window.addEventListener('orientationchange', (e) => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      requestAnimationFrame(updateCanvas);
-    });
+
     navigator?.geolocation?.watchPosition((position) => {
       location = {
         latitude: position.coords.latitude,
@@ -94,11 +89,20 @@
         permission = e.message;
       });
   }
-
+  function handlePhoto(e) {
+    if (e.target.files[0]) {
+      const {name, type, lastModified} = e.target.files[0];
+      const record = {
+        name,
+        type,
+        lastModified,
+        ...orientation,
+        ...location,
+      };
+      console.log(record);
+    }
+  }
   onMount(() => {
-    canvas.width = window.innerWidth;
-    canvas.height=window.innerHeight;
-    ctx = canvas.getContext('2d');
     status = 'mounted';
     if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
       permission = 'unset';
@@ -107,26 +111,6 @@
       createListeners();
     }
   });
-
-  function updateCanvas() {
-    if (canvas === undefined || ctx === undefined) {return;}
-    ctx.fillStyle = '#8ad1db';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#558688'
-    const {alpha, beta, gamma} = orientation;
-    const horizon_angle = -Math.PI / 16 + gamma;
-
-    const yHorizon = (canvas?.height ?? 0) * (0.5 + Math.sin(horizon_angle));
-    const yHorizonDelta = Math.sin(beta) * (canvas?.width ?? 0) * 0.5;
-    ctx.beginPath();
-    ctx.moveTo(0, canvas.height);
-    ctx.lineTo(0, yHorizon - yHorizonDelta);
-    ctx.lineTo(canvas.width, yHorizon + yHorizonDelta);
-    ctx.lineTo(canvas.width, canvas.height);
-    ctx.closePath();
-    ctx.fill();
-  }
-
 </script>
 
 <main
@@ -135,7 +119,21 @@
   on:mousemove={handleDrag}
   on:mouseup={handleDragEnd}
 >
-  <canvas bind:this={canvas}></canvas>
+  <input on:change={handlePhoto} type="file" accept="image/*" id="file-input" />
+  <h1>Device Orientation</h1>
+  <p>Permission: {permission}</p>
+  <p>Status: {status}</p>
+  <p>Absolute: {orientation.absolute}</p>
+  <p>Alpha: {orientation.alpha}</p>
+  <p>Beta: {orientation.beta}</p>
+  <p>Gamma: {orientation.gamma}</p>
+  <p>Latitude: {location.latitude}</p>
+  <p>Longitude: {location.longitude}</p>
+  <p>Altitude: {location.altitude}</p>
+  <p>Accuracy: {location.accuracy}</p>
+  <p>Altitude Accuracy: {location.altitudeAccuracy}</p>
+  <p>Heading: {location.heading}</p>
+  <p>Speed: {location.speed}</p>
 </main>
 
 <style>
