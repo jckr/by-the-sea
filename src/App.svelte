@@ -123,20 +123,24 @@
     <label for="camera-input" class="camera-label">Take photo</label>
     <input id="camera-input" on:change={handlePhoto} type="file" accept="image/*" />
   </section>
-  <h1>Device Orientation</h1>
-  <p>Permission: {permission}</p>
-  <p>Status: {status}</p>
-  <p>Absolute: {orientation.absolute}</p>
-  <p>Alpha: {orientation.alpha}</p>
-  <p>Beta: {orientation.beta}</p>
-  <p>Gamma: {orientation.gamma}</p>
-  <p>Latitude: {location.latitude}</p>
-  <p>Longitude: {location.longitude}</p>
-  <p>Altitude: {location.altitude}</p>
-  <p>Accuracy: {location.accuracy}</p>
-  <p>Altitude Accuracy: {location.altitudeAccuracy}</p>
-  <p>Heading: {location.heading}</p>
-  <p>Speed: {location.speed}</p>
+  <section>
+    <h3>Debug status</h3>
+    <p>Permission: {permission}</p>
+    <p>Status: {status}</p>
+    <h3>Device orientation</h3>
+    <p>Absolute: {orientation.absolute}</p>
+    <p>Alpha: {orientation.alpha}</p>
+    <p>Beta: {orientation.beta}</p>
+    <p>Gamma: {orientation.gamma}</p>
+    <h3>Device Location</h3>
+    <p>Latitude: {location.latitude}</p>
+    <p>Longitude: {location.longitude}</p>
+    <p>Altitude: {location.altitude}</p>
+    <p>Accuracy: {location.accuracy}</p>
+    <p>Altitude Accuracy: {location.altitudeAccuracy}</p>
+    <p>Heading: {location.heading}</p>
+    <p>Speed: {location.speed}</p>
+  </section>
 </main>
 
 <style>
@@ -148,6 +152,17 @@
     height: 100vh;
     width: 100vw;
     background: #eee;
+  }
+  .camera .camera-label {
+    cursor: pointer;
+    display: block;
+    line-height: 3rem;
+    text-align: center;
+    border-radius: 4px;
+    box-shadow: 2px 2px 4px rgb(0 0 0 / 20%);
+    min-height: 3rem;
+    min-width: 10rem;
+    background: #fff;
   }
   .camera #camera-input {
     display: none;
